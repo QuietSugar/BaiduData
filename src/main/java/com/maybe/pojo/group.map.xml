@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maybe.pojo.Group">
+    <resultMap type="Group" id="groupMap">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="createTime" column="createdate" />
+    </resultMap>
+
+    <resultMap type="Group" id="groupUserMap" extends="groupMap">
+        <collection property="user" ofType="User">
+            <id property="id" column="userId" />
+            <result property="name" column="userName" />
+            <result property="password" column="password" />
+            <result property="createTime" column="userCreateTime" />
+        </collection>
+    </resultMap>
+
+
+    <!-- 根据Group表中的id或name查询组信息和组内用户信息 -->
+    <select id="selectGroupUser" parameterType="Group"
+            resultMap="groupUserMap">
+        select u.id as userId,u.name as userName,
+        u.password,u.createtime as userCreateTime,
+        gi.id,gi.name,gi.createdate,gi.state from group_info gi left
+        join user_group ug on gi.id=ug.group_id left join user u on
+        ug.user_id=u.id
+        <where>
+            <!--当id为初始值0，不再使用id作为查询条件 -->
+            <if test="id != 0  ">gi.id=#{id}</if>
+            <!-- 当name为空或为空串时，不再使用name作为查询条件 -->
+            <if test="name != null and name != ''">
+                or gi.name = #{name}
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据id查询group组信息 -->
+    <select id="selectGroup" parameterType="Date"
+            resultMap="groupMap">
+        select * from group_info where id=#{group_id}
+    </select>
+
+    <!--根据name查询group组信息  -->
+    <select id="getGroupByName" parameterType="String"
+            resultMap="groupMap">
+        select * from group_info where name=#{name}
+    </select>
+
+    <!-- 插入组信息 -->
+    <insert id="saveGroup" parameterType="Group" keyProperty="id"
+            useGeneratedKeys="true">
+        insert into group_info(name) values(#{name})
+    </insert>
+
+    <!-- 删除组与组内成员之间的对应关系 -->
+    <delete id="deleteGroupUser" parameterType="UserGroupLink">
+        delete from user_group
+        <where>
+            <if test="user.id != 0">user_id = #{user.id}</if>
+            <if test="group.id != 0">and group_id = #{group.id}</if>
+        </where>
+    </delete>
+
+    <!--根据组id或者组name删除组信息 -->
+    <delete id="deleteGroup" parameterType="Group">
+        delete from group_info
+        <where>
+            <if test="id!=0">id=#{id}</if>
+            <if test="name!=null || name!=''">and name=#{name}</if>
+        </where>
+    </delete>
+
+    <!-- 更新根据组id或者组name更新组状态 -->
+    <update id="updateGroupState" parameterType="Group">
+        update group_info set state=#{state}
+        <where>
+            <if test="id!=0">id=#{id}</if>
+            <if test="name!=null || name!=''">and name=#{name}</if>
+        </where>
+    </update>
+</mapper>
