@@ -2,7 +2,7 @@ package com.maybe.baidu.pojo;
 
 /**
  * 矩形
- * <p/>
+ *
  * Created by Maybe on 2016/8/29.
  * Maybe has infinite possibilities
  */
