@@ -63,7 +63,7 @@ public class GeoUtils {
      * @param polyline the polyline
      * @return the boolean
      */
-    boolean  isPointOnPolyline (Point point, Polyline polyline) {
+    boolean isPointOnPolyline(Point point, Polyline polyline) {
         if ((point == null) || (polyline == null)) {
             return false;
         }
@@ -85,70 +85,64 @@ public class GeoUtils {
         return false;
     }
 
-    boolean  isPointInPolygon (Point o,Polygon l) {
-//        if (!(o instanceof BMap.Point) || !(l instanceof BMap.Polygon)) {
-//            return false
-//        }
-//        var k = l.getBounds();
-//        if (!this.isPointInRect(o, k)) {
-//            return false
-//        }
-//        var t = l.getPath();
-//        var h = t.length;
-//        var n = true;
-        int j = 0;
-//        var g = 2e-10;
-//        var s,
-//                q;
-//        var e = o;
-//        s = t[0];
-//        for (var f = 1; f <= h; ++f) {
-//            if (e.equals(s)) {
-//                return n
-//            }
-//            q = t[f % h];
-//            if (e.lat < Math.min(s.lat, q.lat) || e.lat > Math.max(s.lat, q.lat)) {
-//                s = q;
-//                continue
-//            }
-//            if (e.lat > Math.min(s.lat, q.lat) && e.lat < Math.max(s.lat, q.lat)) {
-//                if (e.lng <= Math.max(s.lng, q.lng)) {
-//                    if (s.lat == q.lat && e.lng >= Math.min(s.lng, q.lng)) {
-//                        return n
-//                    }
-//                    if (s.lng == q.lng) {
-//                        if (s.lng == e.lng) {
-//                            return n
-//                        } else {
-//                            ++j
-//                        }
-//                    } else {
-//                        var r = (e.lat - s.lat) * (q.lng - s.lng) / (q.lat - s.lat) + s.lng;
-//                        if (Math.abs(e.lng - r) < g) {
-//                            return n
-//                        }
-//                        if (e.lng < r) {
-//                            ++j
-//                        }
-//                    }
-//                }
-//            } else {
-//                if (e.lat == q.lat && e.lng <= q.lng) {
-//                    var m = t[(f + 1) % h];
-//                    if (e.lat >= Math.min(s.lat, m.lat) && e.lat <= Math.max(s.lat, m.lat)) {
-//                        ++j
-//                    } else {
-//                        j += 2
-//                    }
-//                }
-//            }
-//            s = q
-//        }
-        if (j % 2 == 0) {
+    boolean isPointInPolygon(Point o, Polygon l) {
+        if ((o == null) || (l == null)) {
             return false;
-        } else {
-            return true;
         }
+        Bounds k = l.getBounds();
+        if (!this.isPointInRect(o, k)) {
+            return false;
+        }
+        ArrayList<Point> t = l.getPath();
+        int h = t.size();
+        int j = 0;
+        double g = 2e-10;
+        Point s, q;
+        Point e = o;
+        s = t.get(0);
+        for (int f = 1; f <= h; ++f) {
+            if (e.equals(s)) {
+                return true;
+            }
+            q = t.get(f % h);
+            if (e.getLatitude() < Math.min(s.getLatitude(), q.getLatitude()) || e.getLatitude() > Math.max(s.getLatitude(), q.getLatitude())) {
+                s = q;
+                continue;
+            }
+            if (e.getLatitude() > Math.min(s.getLatitude(), q.getLatitude()) && e.getLatitude() < Math.max(s.getLatitude(), q.getLatitude())) {
+                if (e.getLongitude() <= Math.max(s.getLongitude(), q.getLongitude())) {
+                    if (s.getLatitude() == q.getLatitude() && e.getLongitude() >= Math.min(s.getLongitude(), q.getLongitude())) {
+                        return true;
+                    }
+                    if (s.getLongitude() == q.getLongitude()) {
+                        if (s.getLongitude() == e.getLongitude()) {
+                            return true;
+                        } else {
+                            ++j;
+                        }
+                    } else {
+                        double r = (e.getLatitude() - s.getLatitude()) * (q.getLongitude() - s.getLongitude()) / (q.getLatitude() - s.getLatitude()) + s.getLongitude();
+                        if (Math.abs(e.getLongitude() - r) < g) {
+                            return true;
+                        }
+                        if (e.getLongitude() < r) {
+                            ++j;
+                        }
+                    }
+                }
+            } else {
+                if (e.getLatitude() == q.getLatitude() && e.getLongitude() <= q.getLongitude()) {
+                    Point m = t.get((f + 1) % h);
+                    if (e.getLatitude() >= Math.min(s.getLatitude(), m.getLatitude()) && e.getLatitude() <= Math.max(s.getLatitude(), m.getLatitude())) {
+                        ++j;
+                    } else {
+                        j += 2;
+                    }
+                }
+            }
+            s = q;
+        }
+        return j % 2 != 0;
     }
 
 
