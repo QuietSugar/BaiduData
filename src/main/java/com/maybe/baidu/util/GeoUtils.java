@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * Maybe has infinite possibilities
  */
 public class GeoUtils {
-    private double a = 6370996.81;
+    private final static double earthRadius = 6370996.81;
 
     /**
      * Is point in rect boolean.
@@ -18,7 +18,7 @@ public class GeoUtils {
      * @param bounds the bounds
      * @return the boolean
      */
-    boolean isPointInRect(Point point, Bounds bounds) {
+    public boolean isPointInRect(Point point, Bounds bounds) {
         if ((point == null) || (bounds == null)) {
             return false;
         }
@@ -39,7 +39,7 @@ public class GeoUtils {
      * @param circle the circle
      * @return the boolean
      */
-    boolean isPointInCircle(Point point, Circle circle) {
+    public boolean isPointInCircle(Point point, Circle circle) {
         if ((point == null) || (circle == null)) {
             return false;
         }
@@ -63,7 +63,7 @@ public class GeoUtils {
      * @param polyline the polyline
      * @return the boolean
      */
-    boolean isPointOnPolyline(Point point, Polyline polyline) {
+    public boolean isPointOnPolyline(Point point, Polyline polyline) {
         if ((point == null) || (polyline == null)) {
             return false;
         }
@@ -85,7 +85,7 @@ public class GeoUtils {
         return false;
     }
 
-    boolean isPointInPolygon(Point o, Polygon l) {
+    public boolean isPointInPolygon(Point o, Polygon l) {
         if ((o == null) || (l == null)) {
             return false;
         }
@@ -153,7 +153,7 @@ public class GeoUtils {
      * @param pointEnd   the point end
      * @return the distance
      */
-    double getDistance(Point pointStart, Point pointEnd) {
+    public double getDistance(Point pointStart, Point pointEnd) {
         if ((pointStart == null) || (pointEnd == null)) {
             return -1;
         }
@@ -166,7 +166,27 @@ public class GeoUtils {
         i = degreeToRad(pointStart.getLatitude());
         e = degreeToRad(pointEnd.getLongitude());
         g = degreeToRad(pointEnd.getLatitude());
-        return a * Math.acos((Math.sin(i) * Math.sin(g) + Math.cos(i) * Math.cos(g) * Math.cos(e - f)));
+        //球体上弧线距离计算
+        return earthRadius * Math.acos((Math.sin(i) * Math.sin(g) + Math.cos(i) * Math.cos(g) * Math.cos(e - f)));
+    }
+
+    public double getPolylineDistance(Polyline f) {
+        if (f != null) {
+            ArrayList<Point> l = f.getPath();
+            if (l.size() < 2) {
+                return 0;
+            }
+            double j = 0;
+            for (int h = 0; h < l.size() - 1; h++) {
+                Point k = l.get(h);
+                Point g = l.get(h + 1);
+                double e = this.getDistance(k, g);
+                j += e;
+            }
+            return j;
+        } else {
+            return 0;
+        }
     }
 
     private double c(double g, double f, double e) {
