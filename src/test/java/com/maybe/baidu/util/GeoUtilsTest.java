@@ -3,7 +3,10 @@ package com.maybe.baidu.util;
 import com.maybe.baidu.pojo.Bounds;
 import com.maybe.baidu.pojo.Circle;
 import com.maybe.baidu.pojo.Point;
+import com.maybe.baidu.pojo.Polyline;
 import org.junit.Test;
+
+import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
@@ -40,7 +43,13 @@ public class GeoUtilsTest {
 
     @Test
     public void testIsPointOnPolyline() throws Exception {
-
+        Point testPoint = new Point(116.05,40.05);
+        ArrayList<Point> path = new ArrayList<>();
+        path.add(point1);
+        path.add(point2);
+        path.add(point3);
+        path.add(point4);
+        System.out.println(new GeoUtils().isPointOnPolyline(point1,new Polyline(path)));
     }
 
     @Test

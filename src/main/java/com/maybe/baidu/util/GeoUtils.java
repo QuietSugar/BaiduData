@@ -75,7 +75,10 @@ public class GeoUtils {
         for (int k = 0; k < path.size() - 1; k++) {
             Point l = path.get(k);
             Point j = path.get(k + 1);
-            if (point.getLongitude() >= Math.min(l.getLongitude(), j.getLongitude()) && point.getLongitude() <= Math.max(l.getLongitude(), j.getLongitude()) && point.getLatitude() >= Math.min(l.getLatitude(), j.getLatitude()) && point.getLatitude() <= Math.max(l.getLatitude(), j.getLatitude())) {
+            if (point.getLongitude() >= Math.min(l.getLongitude(), j.getLongitude())
+                    && point.getLongitude() <= Math.max(l.getLongitude(), j.getLongitude())
+                    && point.getLatitude() >= Math.min(l.getLatitude(), j.getLatitude())
+                    && point.getLatitude() <= Math.max(l.getLatitude(), j.getLatitude())) {
                 double g = (l.getLongitude() - point.getLongitude()) * (j.getLatitude() - point.getLatitude()) - (j.getLongitude() - point.getLongitude()) * (l.getLatitude() - point.getLatitude());
                 if (g < 2e-10 && g > -2e-10) {
                     return true;
@@ -188,6 +191,139 @@ public class GeoUtils {
             return 0;
         }
     }
+
+    public double getPolygonArea(Polygon t) {
+        if (t == null) {
+            return 0;
+        }
+        ArrayList<Point> R;
+
+        R = t.getPath();
+
+        if (R.size() < 3) {
+            return 0;
+        }
+        double w = 0;
+        double D = 0;
+        double C = 0;
+        double L = 0;
+        double J = 0;
+        double F = 0;
+        double E = 0;
+        double S = 0;
+        double H = 0;
+        double p = 0;
+        double T = 0;
+        double I = 0;
+        double q = 0;
+        double e = 0;
+        double M = 0;
+        double v = 0;
+        double K = 0;
+        double N = 0;
+        double s = 0;
+        double O = 0;
+        double l = 0;
+        double g = 0;
+        double z = 0;
+        double Q = 0;
+        double G = 0;
+        double j = 0;
+        double A = 0;
+        double o = 0;
+        double m = 0;
+        double y = 0;
+        double x = 0;
+        double h = 0;
+        double k = 0;
+        double f = 0;
+        double n = earthRadius;
+        int B = R.size();
+        for (int P = 0; P < B; P++) {
+            if (P == 0) {
+                D = R.get(B - 1).getLongitude() * Math.PI / 180;
+                C = R.get(B - 1).getLatitude() * Math.PI / 180;
+                L = R.get(0).getLongitude() * Math.PI / 180;
+                J = R.get(0).getLatitude() * Math.PI / 180;
+                F = R.get(1).getLongitude() * Math.PI / 180;
+                E = R.get(1).getLatitude() * Math.PI / 180;
+            } else {
+                if (P == B - 1) {
+                    D = R.get(B - 2).getLongitude() * Math.PI / 180;
+                    C = R.get(B - 2).getLatitude() * Math.PI / 180;
+                    L = R.get(B - 1).getLongitude() * Math.PI / 180;
+                    J = R.get(B - 1).getLatitude() * Math.PI / 180;
+                    F = R.get(0).getLongitude() * Math.PI / 180;
+                    E = R.get(0).getLatitude() * Math.PI / 180;
+                } else {
+                    D = R.get(P - 1).getLongitude() * Math.PI / 180;
+                    C = R.get(P - 1).getLatitude() * Math.PI / 180;
+                    L = R.get(P).getLongitude() * Math.PI / 180;
+                    J = R.get(P).getLatitude() * Math.PI / 180;
+                    F = R.get(P + 1).getLongitude() * Math.PI / 180;
+                    E = R.get(P + 1).getLatitude() * Math.PI / 180;
+                }
+            }
+            S = Math.cos(J) * Math.cos(L);
+            H = Math.cos(J) * Math.sin(L);
+            p = Math.sin(J);
+            T = Math.cos(C) * Math.cos(D);
+            I = Math.cos(C) * Math.sin(D);
+            q = Math.sin(C);
+            e = Math.cos(E) * Math.cos(F);
+            M = Math.cos(E) * Math.sin(F);
+            v = Math.sin(E);
+            K = (S * S + H * H + p * p) / (S * T + H * I + p * q);
+            N = (S * S + H * H + p * p) / (S * e + H * M + p * v);
+            s = K * T - S;
+            O = K * I - H;
+            l = K * q - p;
+            g = N * e - S;
+            z = N * M - H;
+            Q = N * v - p;
+            m = (g * s + z * O + Q * l) / (Math.sqrt(g * g + z * z + Q * Q) * Math.sqrt(s * s + O * O + l * l));
+            m = Math.acos(m);
+            G = z * l - Q * O;
+            j = 0 - (g * l - Q * s);
+            A = g * O - z * s;
+            if (S != 0) {
+                o = G / S;
+            } else {
+                if (H != 0) {
+                    o = j / H;
+                } else {
+                    o = A / p;
+                }
+            }
+            if (o > 0) {
+                y += m;
+                k++;
+            } else {
+                x += m;
+                h++;
+            }
+        }
+        double u,
+                r;
+        u = y + (2 * Math.PI * h - x);
+        r = (2 * Math.PI * k - y) + x;
+        if (y > x) {
+            if ((u - (B - 2) * Math.PI) < 1) {
+                f = u;
+            } else {
+                f = r;
+            }
+        } else {
+            if ((r - (B - 2) * Math.PI) < 1) {
+                f = r;
+            } else {
+                f = u;
+            }
+        }
+        w = (f - (B - 2) * Math.PI) * n * n;
+        return w;
+    }
+
 
     private double c(double g, double f, double e) {
         while (g > e) {
