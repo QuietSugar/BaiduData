@@ -1,0 +1,100 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+
+    <script type="text/javascript"
+            src="http://api.map.baidu.com/api?v=2.0&ak=1IqchvWD47X4jXVjDi6iwvgt5W5fGTcH"></script>
+    <title>根据起终点经纬度查询公交换乘</title>
+    <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+</head>
+<body>
+<div id="allmap">------地图预留---</div>
+<div id="results" style="display: none;" class="col-md-1"></div>
+
+<div id="show"></div>
+
+</body>
+</html>
+<script type="text/javascript" src="http://cdn.bootcss.com/jquery/1.12.0/jquery.min.js"></script>
+<script type="text/javascript" src="http://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+    // 百度地图API功能
+    //    var map = new BMap.Map("allmap");            // 创建Map实例
+    //    map.centerAndZoom(new BMap.Point(116.404, 39.915), 12);
+    var output = "信息\n";
+    var pointDataArray = new Array([116.328325, 40.077114, "519", "地铁龙泽站"], [116.336276, 40.079226, "519", "育知路南口"], [116.333634, 40.08318, "519", "龙华园东区"], [116.331905, 40.082652, "519", "龙华园"], [116.326924, 40.081216, "519", "北郊农场桥东"], [116.321017, 40.080654, "519", "北郊农场桥北"], [116.315224, 40.088313, "519", "二拨子"], [116.308949, 40.096296, "519", "朱辛庄"], [116.300666, 40.107075, "519", "史各庄南"], [116.298717, 40.110303, "519", "史各庄"], [116.293507, 40.11518, "519", "定福皇庄"], [116.286805, 40.119935, "519", "碧水庄园"], [116.275887, 40.12959, "519", "沙河北行"], [116.275047, 40.130373, "519", "沙河南行"], [116.263643, 40.127421, "519", "沙河西站"], [116.256052, 40.127266, "519", "老牛湾"], [116.249936, 40.127259, "519", "南玉河路口东"], [116.239487, 40.126445, "519", "北玉河村东"], [116.235121, 40.126642, "519", "北玉河村"], [116.232916, 40.126866, "519", "皂甲屯"], [116.229058, 40.122546, "519", "二六一医院"]);
+
+    var pointArray = new Array();
+    for (var i = 0; i < pointDataArray.length; i++) {
+        pointArray.push(new BMap.Point(pointDataArray[i][0], pointDataArray[i][1]));
+    }
+
+    var searchComplete = function (results) {
+        if (transit.getStatus() != BMAP_STATUS_SUCCESS) {
+            return;
+        }
+        console.log("总共有路线的条数:" + results.tr.length);
+        console.log(results.tr);
+        $("#show").append("<br>" + "总共有路线的条数:" + results.tr.length + "<br>");
+        for (var k = 0; k < results.tr.length; k++) {
+            $("#show").append("第" + k + "条线路" +
+                    "<br>公交信息：" + results.tr[k].Ti[0].title +
+                    "<br>开始站：" + results.tr[k].Ti[0].Yi[0].title +
+                    "<br>结束站：" + results.tr[k].Ti[0].Yi[1].title +
+                    "<br>距离：    原始" + results.tr[k].cg + "  优化" + results.getPlan(k).getDistance(true) +
+                    "<br>时间：    原始" + results.tr[k].Nq + "  优化" + results.getPlan(k).getDuration(true) +
+                    "<br>");
+
+            var postData = {
+                lineName: results.tr[k].Ti[0].title,
+                startStation: results.tr[k].Ti[0].Yi[0].title,
+                endStation: results.tr[k].Ti[0].Yi[1].title,
+                distance: results.tr[k].cg,
+                time: results.tr[k].Nq
+            };
+//            ;
+            console.log(postData);
+//
+//            //传送到后台
+            $.ajax({
+                type: "POST",
+                url: "StationDistanceAndTimeServlet",
+                data: {
+                    data: JSON.stringify(postData)
+                }
+            });
+
+        }
+        var plan = results.getPlan(0);
+        output += plan.getDuration(true) + "\n";  //获取时间
+        output += plan.getDistance(true) + "\n";  //获取距离
+        output = "信息\n";
+
+
+    };
+    var transit = new BMap.TransitRoute(
+            //加载到地图上面
+            //map, {
+            //   renderOptions: {map: map},
+
+            //加载到面板上
+            "北京", {
+                renderOptions: {
+                    panel: "results"
+                },
+                onSearchComplete: searchComplete,
+                onPolylinesSet: function () {
+                    setTimeout(function () {
+                        console.log("线路已加载....")
+                    }, "1000");
+                }
+            });
+    for (var j = 0; j < pointArray.length - 1; j++) {
+//        transit.search(p1, p2);
+        transit.search(pointArray[j], pointArray[j + 1]);
+    }
+    transit.search(pointArray[0], pointArray[pointArray.length - 1]);
+
+</script>

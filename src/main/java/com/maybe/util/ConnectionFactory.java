@@ -108,12 +108,19 @@ public class ConnectionFactory {
      */
     public static Connection getConnectionOracle() {
         try {
+//            Class.forName("oracle.jdbc.driver.OracleDriver");// 加载Oracle驱动程序
+//            String url = "jdbc:oracle:thin:@heigoServer:1521:orcl";// 127.0.0.1是本机地址，XE是精简版Oracle的默认数据库名
+//            String user = "bmacsj"; // 用户名
+//            String password = "sa"; // 数据库密码
+
             Class.forName("oracle.jdbc.driver.OracleDriver");// 加载Oracle驱动程序
-            String url = "jdbc:oracle:thin:@heigoServer:1521:orcl";// 127.0.0.1是本机地址，XE是精简版Oracle的默认数据库名
-            String user = "bmacsj"; // 用户名
-            String password = "sa"; // 数据库密码
+            String url = "jdbc:oracle:thin:@192.168.0.241:1521:ORCL";
+            String user = "hgora"; // 用户名
+            String password = "hgORA1234"; // 数据库密码
+
             conn = DriverManager.getConnection(url, user, password);// 获取连接
         } catch (Exception e) {
+            System.out.println(e);
             logger.error("ERRNO: 0x000010");
         }
         return conn;
@@ -122,7 +129,7 @@ public class ConnectionFactory {
     public static void main(String[] args) {
         long startDateTime = System.currentTimeMillis();
         System.out.println("Start: " + startDateTime);
-        getConnection();
+        getConnectionOracle();
         long endDateTime = System.currentTimeMillis();
         System.out.println("End: " + endDateTime);
         long result = endDateTime - startDateTime;
