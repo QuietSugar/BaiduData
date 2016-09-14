@@ -25,7 +25,7 @@ public class StationDTUtil {
             preparedStatement.execute();
             return true;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.printf(e.toString());
             return false;
         } finally {
             ConnectionFactory.closeResources(preparedStatement, connection);
