@@ -2,6 +2,7 @@ package com.maybe.util;
 
 import com.maybe.pojo.StationDT;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -11,7 +12,27 @@ import java.sql.SQLException;
  * Maybe has infinite possibilities
  */
 public class StationDTUtil {
-    public static Boolean insertStationDT(StationDT stationDT) {
+    private static DataSource dataSource = null;
+
+    public static DataSource getDataSource() {
+        if (dataSource == null) {
+            try {
+                dataSource = DataSourceUtil.getDataSource(DataSourceUtil.DRUID_MYSQL_SOURCE);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("获取连接失败");
+            }
+        }
+
+
+        return dataSource;
+    }
+
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    public synchronized static Boolean insertStationDT(StationDT stationDT) {
         Connection connection = ConnectionFactory.getConnectionOracle();
         String sql = "INSERT INTO A_GONGJIAOZHANINFO VALUES(?,?,?,?,?)";
         PreparedStatement preparedStatement = null;

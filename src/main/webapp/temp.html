@@ -18,12 +18,12 @@
             type: "POST",
             url: "GetStationByLineNameAndFlagServlet",
             data: {
-                lineName: "519",
+                lineName: "519路",
                 flag: 0
             },
             dataType: "json",
             success: function (result) {
-                console.log(result[0].name);
+                console.log(result);
             }
         });
     });

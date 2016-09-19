@@ -3,6 +3,7 @@ package com.maybe.servlet;
 import com.maybe.pojo.LngAndLat;
 import com.maybe.pojo.Station;
 import com.maybe.pojo.StationDT;
+import com.maybe.util.ConnectionFactory;
 import com.maybe.util.StationDTUtil;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -13,7 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,18 +32,42 @@ public class GetStationByLineNameAndFlagServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         System.out.println("--邪恶的分割线-----------");
         request.setCharacterEncoding("UTF-8");
-        System.out.println(request.getParameter("data"));
-        System.out.println(request.getParameter("lineName"));
-        System.out.println(request.getParameter("flag"));
-
+        String lineName = request.getParameter("lineName");
+        String flag = request.getParameter("flag");
+        System.out.println(lineName + "----" + flag);
 //
         ObjectMapper mapper = new ObjectMapper();
-        List<Station> stations = new ArrayList<>();
-        stations.add(new Station("001", "朱辛庄", new LngAndLat(0.0, 0.0)));
-        stations.add(new Station("002", "二拨子", new LngAndLat(1.0, 1.0)));
-        stations.add(new Station("003", "安宁庄北路", new LngAndLat(2.0, 2.0)));
 
-        String str = mapper.writeValueAsString(stations);
+        List<double[]> list = new ArrayList<>();
+//        list.add(new double[]{116.328325, 40.077114});
+//        list.add(new double[]{116.336276, 40.079226});
+//        list.add(new double[]{116.333634, 40.08318});
+
+
+        Connection connection = ConnectionFactory.getConnectionOracle();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        String sql = "SELECT XIANLUMINGCHENG,ZHANDIANMINGCHENG,SHANGXIAXINGFLAG,LNG,LAT FROM A_GONGJIAOZHANHAO WHERE XIANLUMINGCHENG = ? AND SHANGXIAXINGFLAG = ?  ORDER BY  SHUNXUHAO";
+        try {
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, lineName);
+            preparedStatement.setString(2, flag);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                list.add(new double[]{resultSet.getDouble("LNG"), resultSet.getDouble("LAT")});
+            }
+
+            if("1".equals(flag)){
+                Collections.reverse(list);//反序排列
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            ConnectionFactory.closeResources(resultSet,preparedStatement, connection);
+        }
+
+        String str = mapper.writeValueAsString(list);
 
         response.setCharacterEncoding("UTF-8");
         PrintWriter printWriter = response.getWriter();
