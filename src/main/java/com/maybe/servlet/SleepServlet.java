@@ -21,10 +21,17 @@ import java.io.PrintWriter;
 public class SleepServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        long defaultSleepTime = 1000;
+
+        String sleepTime = request.getParameter("sleepTime");
+        if (!(sleepTime == null || sleepTime.length() == 0)) {
+            defaultSleepTime = Long.parseLong(sleepTime);
+        }
         try {
-            Thread.sleep(10000);
-            System.out.println("暂停成功----------------------------------------------------");
+            Thread.sleep(defaultSleepTime);
+            System.out.println("暂停成功----------时间:   " + defaultSleepTime + "----------------------------------");
         } catch (InterruptedException e) {
+            System.out.println("暂停失败---------------------------------------------");
             e.printStackTrace();
         }
 

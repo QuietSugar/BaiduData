@@ -43,7 +43,7 @@ public class StationDistanceAndTimeServlet extends HttpServlet {
             System.out.println("获取连接失败-------------------------");
         }
         PreparedStatement preparedStatement = null;
-        String sql = "INSERT  INTO A_GONGJIAOZHANINFOTEMP3 VALUES(?,?,?,?,?)";
+        String sql = "INSERT  INTO A_GONGJIAOZHANINFOTEMP VALUES(?,?,?,?,?)";
         try {
             preparedStatement = conn.prepareStatement(sql);
 
