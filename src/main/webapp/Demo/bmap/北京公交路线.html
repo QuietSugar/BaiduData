@@ -1,0 +1,186 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>519上车人流分布图</title>
+    <style type="text/css">
+        html, body, #main {
+            font-family: "Courier New, monospace,微软雅黑", sans-serif;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="main"></div>
+<!--引入百度地图的jssdk，这里需要使用你在百度地图开发者平台申请的 ak-->
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+<!-- 引入 ECharts -->
+<script src="../../asset/echarts/echarts.min.js"></script>
+<!-- 引入百度地图扩展 -->
+<script src="../../asset/echarts/extension/bmap.min.js"></script>
+<script src="../../asset/jQuery/jquery-3.0.0.js"></script>
+<!-- <script src="http://api.map.baidu.com/api?v=1.3" type="text/javascript"></script> -->
+<script src="testData/cord.js" type="text/javascript"></script>        <!--所有公交站点的经纬度-->
+<script src="testData/datas.js" type="text/javascript"></script>        <!--公交站点人流量数据，15分钟间隔，刷新新一次数据，此数据与上一个需关联使用-->
+<script src="testData/LineLL.js" type="text/javascript"></script>        <!--连点成线，所有点的经纬度-->
+<script>
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+
+//    app.title = '北京公交路线 - 百度地图';
+
+$.get('data/lines-bus.json', function(data) {
+    var busLines = [].concat.apply([], data.map(function (busLine, idx) {
+        var prevPt;
+        var points = [];
+        for (var i = 0; i < busLine.length; i += 2) {
+            var pt = [busLine[i], busLine[i + 1]];
+            if (i > 0) {
+                pt = [
+                    prevPt[0] + pt[0],
+                    prevPt[1] + pt[1]
+                ];
+            }
+            prevPt = pt;
+
+            points.push([pt[0] / 1e4, pt[1] / 1e4]);
+        }
+        return {
+            coords: points
+        };
+    }));
+    myChart.setOption(option = {
+        bmap: {
+            center: [116.46, 39.92],
+            zoom: 10,
+            roam: true,
+            mapStyle: {
+                styleJson: [{
+                    'featureType': 'water',
+                    'elementType': 'all',
+                    'stylers': {
+                        'color': '#d1d1d1'
+                    }
+                }, {
+                    'featureType': 'land',
+                    'elementType': 'all',
+                    'stylers': {
+                        'color': '#f3f3f3'
+                    }
+                }, {
+                    'featureType': 'railway',
+                    'elementType': 'all',
+                    'stylers': {
+                        'visibility': 'off'
+                    }
+                }, {
+                    'featureType': 'highway',
+                    'elementType': 'all',
+                    'stylers': {
+                        'color': '#fdfdfd'
+                    }
+                }, {
+                    'featureType': 'highway',
+                    'elementType': 'labels',
+                    'stylers': {
+                        'visibility': 'off'
+                    }
+                }, {
+                    'featureType': 'arterial',
+                    'elementType': 'geometry',
+                    'stylers': {
+                        'color': '#fefefe'
+                    }
+                }, {
+                    'featureType': 'arterial',
+                    'elementType': 'geometry.fill',
+                    'stylers': {
+                        'color': '#fefefe'
+                    }
+                }, {
+                    'featureType': 'poi',
+                    'elementType': 'all',
+                    'stylers': {
+                        'visibility': 'off'
+                    }
+                }, {
+                    'featureType': 'green',
+                    'elementType': 'all',
+                    'stylers': {
+                        'visibility': 'off'
+                    }
+                }, {
+                    'featureType': 'subway',
+                    'elementType': 'all',
+                    'stylers': {
+                        'visibility': 'off'
+                    }
+                }, {
+                    'featureType': 'manmade',
+                    'elementType': 'all',
+                    'stylers': {
+                        'color': '#d1d1d1'
+                    }
+                }, {
+                    'featureType': 'local',
+                    'elementType': 'all',
+                    'stylers': {
+                        'color': '#d1d1d1'
+                    }
+                }, {
+                    'featureType': 'arterial',
+                    'elementType': 'labels',
+                    'stylers': {
+                        'visibility': 'off'
+                    }
+                }, {
+                    'featureType': 'boundary',
+                    'elementType': 'all',
+                    'stylers': {
+                        'color': '#fefefe'
+                    }
+                }, {
+                    'featureType': 'building',
+                    'elementType': 'all',
+                    'stylers': {
+                        'color': '#d1d1d1'
+                    }
+                }, {
+                    'featureType': 'label',
+                    'elementType': 'labels.text.fill',
+                    'stylers': {
+                        'color': '#999999'
+                    }
+                }]
+            }
+        },
+        series: [{
+            type: 'lines',
+            coordinateSystem: 'bmap',
+            polyline: true,
+            data: busLines,
+            silent: true,
+            lineStyle: {
+                normal: {
+                    color: '#c23531',
+                    color: 'rgb(200, 35, 45)',
+                    opacity: 0.2,
+                    width: 1
+                }
+            },
+            progressiveThreshold: 500,
+            progressive: 200
+        }]
+    });
+
+    // 获取百度地图实例，使用百度地图自带的控件
+    var bmap = myChart.getModel().getComponent('bmap').getBMap();
+    bmap.disableScrollWheelZoom();//禁用滑轮放大缩小
+});
+
+
+</script>
+
+</body>
+</html>
