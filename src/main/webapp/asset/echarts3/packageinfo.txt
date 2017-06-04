@@ -1,0 +1,2 @@
+https://github.com/ecomfe/echarts/tree/master/dist
+只保留了压缩版的js，其他的都删除了,2017-06从github上面下载

@@ -1,0 +1,135 @@
+<html>
+<head>
+    <!--自己的示例文件，注释详细-->
+    <!--
+    Echarts3上面的散点图，基于geo坐标系
+    此种图依赖于Echart
+
+
+
+    -->
+    <meta charset="utf-8">
+    <title>519上车人流分布图</title>
+</head>
+<body>
+<div id="container" style="height: 100%"></div>
+<!--引入百度地图的jssdk，这里需要使用你在百度地图开发者平台申请的 ak-->
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+<!-- 引入 ECharts -->
+<script src="../../asset/echarts3/echarts.min.js"></script>
+<!-- 地图文件 -->
+<script src="../../asset/echarts3/map/beijing.js"></script>
+<!-- 引入百度地图扩展 -->
+<script src="../../asset/echarts3/extension/bmap.min.js"></script>
+<script src="../../asset/jQuery/jquery-3.0.0.js"></script>
+<script src="../echarts2/testData/cord.js" type="text/javascript"></script>        <!--所有公交站点的经纬度-->
+<script src="../echarts2/testData/datas.js" type="text/javascript"></script>        <!--公交站点人流量数据，15分钟间隔，刷新新一次数据，此数据与上一个需关联使用-->
+<script src="../echarts2/testData/LineLL.js" type="text/javascript"></script>        <!--连点成线，所有点的经纬度-->
+<script>
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('container'));
+
+    var geoCoordMap =cord;
+
+    var convertData = function (data) {
+        var res = [];
+        for (var i = 0; i < data.length; i++) {
+            var geoCoord = geoCoordMap[data[i].name];
+            if (geoCoord) {
+                res.push({
+                    name: data[i].name,
+                    value: geoCoord.concat(data[i].value)
+                });
+            }
+        }
+        return res;
+    };
+
+    option = {
+        backgroundColor: '#404a59',
+        title: {
+            text: '全国主要城市空气质量',
+            subtext: 'data from PM25.in',
+            sublink: 'http://www.pm25.in',
+            x:'center',
+            textStyle: {
+                color: '#fff'
+            }
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: function (params) {
+                return params.name + ' : ' + params.value[2];
+            }
+        },
+        legend: {
+            orient: 'vertical',
+            y: 'bottom',
+            x:'right',
+            data:['pm2.5'],
+            textStyle: {
+                color: '#fff'
+            }
+        },
+        visualMap: {
+            min: 0,
+            max: 200,
+            calculable: true,
+            inRange: {
+                color: ['#50a3ba', '#eac736', '#d94e5d']
+            },
+            textStyle: {
+                color: '#fff'
+            }
+        },
+        geo: {
+            type: 'map',
+            map: '北京',
+            center: [116.257222, 40.127197],
+            roam:true,
+            zoom:5,
+            label: {
+                emphasis: {
+                    show: false
+                }
+            },
+            itemStyle: {
+                normal: {
+                    areaColor: '#323c48',
+                    borderColor: '#111'
+                },
+                emphasis: {
+                    areaColor: '#2a333d'
+                }
+            }
+        },
+        series: [
+            {
+                name: 'pm2.5',
+                type: 'scatter',
+                coordinateSystem: 'geo',
+                data: convertData(datas[12]),
+                symbolSize: 12,
+                label: {
+                    normal: {
+                        show: false
+                    },
+                    emphasis: {
+                        show: false
+                    }
+                },
+                itemStyle: {
+                    emphasis: {
+                        borderColor: '#fff',
+                        borderWidth: 1
+                    }
+                }
+            }
+        ]
+    };
+
+    myChart.setOption(option,true );
+</script>
+
+</body>
+</html>
