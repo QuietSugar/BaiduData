@@ -4,10 +4,8 @@
 <head>
     <meta charset="utf-8"/>
     <title>用百度API获取全国公交数据</title>
-    <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <style type="text/css">
-
-        .luter_titlebar {
+        .my_title {
             z-index: 20000;
             position: absolute;
             top: 1px;
@@ -19,37 +17,21 @@
             text-align: center;
             color: #000;
         }
-
-        .luter_titlebar span {
+        .my_title span {
             font-size: 24px;
             color: #000;
         }
-
-        .luter_sidebar {
-            z-index: 20000;
-            position: absolute;
-            top: 70px;
-            left: 0px;
-            width: 20%;
-            height: 10%;
-            background: rgba(0, 0, 0, 0.10);
-            text-align: center;
-            color: #FFFFFF;
-            /*overflow: auto;*/
-        }
     </style>
+    <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
 </head>
 <body>
-<div class="luter_titlebar">
+<div class="my_title">
     <span>用百度API获取全国公交数据</span>
 </div>
-
-
 <div class="container-fluid">
     <div class="row well" style="margin-top:30px">
         <div class="col-md-3">
             <input class="form-control" type="text" value="北京" id="cityName"/>
-
             <div class="input-group">
                 <span class="input-group-addon">公交线路:</span>
                 <input class="form-control" type="text" value="1" id="busId"/>
@@ -79,11 +61,27 @@
     </div>
 </div>
 <div id="results" style="display: none;" class="col-md-1"></div>
+<div class="panel-group" id="accordion"></div>
 <script src="http://api.map.baidu.com/api?v=1.3" type="text/javascript"></script>
 <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="http://cdn.bootcss.com/jquery/1.12.0/jquery.min.js"></script>
 <script type="text/javascript" src="http://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <script type="text/javascript">
+    var startId = 0;
+    //获取一个唯一ID
+    function getUniqueId() {
+        return "uniqueId" + (startId++);
+    }
+    //添加结果到面板，可折叠
+    // busLineName:线路名称，用于显示
+    // resultId:结果id,用于排序,最好保证唯一性
+    // resultBody:结果内容，用于显示
+    function addResultToPanel(busLineName, resultId, resultBody) {
+        //class设置为
+        //collapse in时展开
+        //collapse时隐藏
+        $("#accordion").append('<div class="panel panel-default"><div class="panel-heading"><h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#' + resultId + '">' + busLineName + '</a></h4></div><div id="' + resultId + '" class="panel-collapse collapse"><div class="panel-body">' + resultBody + '</div></div></div>');
+    }
     document.getElementById('btn-search').onclick = function () {
         var cityName = $("#cityName").val();
         var busIds = $("#busId").val();
@@ -108,18 +106,19 @@
 
             },
             onGetBusLineComplete: function (result) {
-                $('#buslines').append('<br><br><font color="red">*********找到线路:</font>[' + result.name + ']<br><br>')
-                $('#buslines').append('<br><font color="blue">-------线路的经纬度:</font><br>')
-                console.log(result);
+                console.log('这里是公交线路:', result);
                 var lines = result._polyline.points;//这个是线路数据
+                var lineString = '';
                 for (var i = 0; i < lines.length; i++) {
-                    $('#buslines').append('[' + lines[i].lng + ',' + lines[i].lat + '],')
+                    lineString += ('经度:' + lines[i].lng + ',纬度:' + lines[i].lat + '|');
                 }
+                addResultToPanel(result.name + "路线路数据", getUniqueId(), lineString);
                 var stations = result._stations;//这个是这条线路的站点信息
-                $('#buslines').append('<br><font color="blue">-------站点的经纬度:</font><br>')
+                var busStationString = '';
                 for (var j = 0; j < stations.length; j++) {
-                    $('#buslines').append('"' + stations[j].name + '":[' + stations[j].position.lng + ',' + stations[j].position.lat + '],')
+                    busStationString += (stations[j].name + ':[经度:' + stations[j].position.lng + ',纬度:' + stations[j].position.lat + ']|')
                 }
+                addResultToPanel(result.name + "路站点数据", getUniqueId(), busStationString);
                 var postData = {
                     line_name: result.name,//线路名称
                     line: lines,//线路的线坐标
